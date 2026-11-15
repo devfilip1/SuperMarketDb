@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Diagramas OLTP – Supermercado</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1d2330; margin: 0; background: #fff; }
+  h1 { font-size: 16pt; margin: 0 0 4px; }
+  p { margin: 2px 0 8px; font-size: 9.5pt; color: #5b6475; }
+  .pagina + .pagina { page-break-before: always; }
+  .mermaid { display: flex; justify-content: center; margin: 0; }
+  .mermaid svg { max-width: 100%; max-height: 155mm; width: auto; height: auto; }
+</style>
+</head>
+<body>
+
+<div class="pagina">
+<h1>Diagrama de classes UML – Venda de produtos por cupom fiscal</h1>
+<p>9 entidades JPA, 1 classe embutida (Endereco) e 1 enum. Venda é o cupom fiscal; ItemVenda é a entidade intermediária entre Venda e Produto. Herança Pessoa → Cliente/Funcionario (JOINED).</p>
+<pre class="mermaid">
+classDiagram
+direction LR
+class Pessoa {
+  &lt;&lt;abstract&gt;&gt;
+  -Long id
+  -String nome
+  -String cpf
+  -Endereco endereco
+}
+class Cliente
+class Funcionario {
+  -String matricula
+}
+class CartaoFidelidade {
+  -Long id
+  -String numero
+  -LocalDate dataEmissao
+}
+class Endereco {
+  &lt;&lt;Embeddable&gt;&gt;
+  -String logradouro
+  -String cidade
+  -String estado
+}
+class Loja {
+  -Long id
+  -String nome
+  -Endereco endereco
+}
+class Categoria {
+  -Long id
+  -String nome
+}
+class Produto {
+  -Long id
+  -String nome
+  -BigDecimal preco
+}
+class Venda {
+  -Long id
+  -LocalDateTime dataHora
+  -FormaPagamento formaPagamento
+  +adicionarItem(Produto, int)
+  +getTotal() BigDecimal
+}
+class ItemVenda {
+  -Long id
+  -int quantidade
+  -BigDecimal precoUnitario
+  +getSubtotal() BigDecimal
+}
+class FormaPagamento {
+  &lt;&lt;enumeration&gt;&gt;
+  DINHEIRO
+  DEBITO
+  CREDITO
+  PIX
+}
+Pessoa <|-- Cliente
+Pessoa <|-- Funcionario
+Pessoa *-- Endereco
+Loja *-- Endereco
+Cliente "1" --> "0..1" CartaoFidelidade : cartao - OneToOne
+Produto "*" --> "1" Categoria : categoria
+Venda "*" --> "1" Cliente : cliente
+Venda "*" --> "1" Loja : loja
+Venda "*" --> "1" Funcionario : operador
+Venda --> FormaPagamento
+Venda "1" *-- "1..*" ItemVenda : itens / venda - bidirecional
+ItemVenda "*" --> "1" Produto : produto
+</pre>
+</div>
+
+<div class="pagina">
+<h1>Modelo relacional OLTP (PostgreSQL)</h1>
+<p>9 tabelas. cliente.id e funcionario.id são PK e FK para pessoa.id (herança JOINED). item_venda resolve o N:N entre venda e produto. Script: sql/oltp/01_ddl_oltp.sql.</p>
+<pre class="mermaid">
+erDiagram
+  PESSOA ||--o| CLIENTE : "id"
+  PESSOA ||--o| FUNCIONARIO : "id"
+  CARTAO_FIDELIDADE |o--o| CLIENTE : "cartao_fidelidade_id"
+  CATEGORIA ||--o{ PRODUTO : "categoria_id"
+  CLIENTE ||--o{ VENDA : "cliente_id"
+  LOJA ||--o{ VENDA : "loja_id"
+  FUNCIONARIO ||--o{ VENDA : "funcionario_id"
+  VENDA ||--|{ ITEM_VENDA : "venda_id"
+  PRODUTO ||--o{ ITEM_VENDA : "produto_id"
+
+  PESSOA {
+    bigserial id PK
+    varchar nome
+    varchar cpf UK
+    varchar logradouro
+    varchar cidade
+    varchar estado
+  }
+  CLIENTE {
+    bigint id PK,FK
+    bigint cartao_fidelidade_id FK,UK
+  }
+  FUNCIONARIO {
+    bigint id PK,FK
+    varchar matricula UK
+  }
+  CARTAO_FIDELIDADE {
+    bigserial id PK
+    varchar numero UK
+    date data_emissao
+  }
+  LOJA {
+    bigserial id PK
+    varchar nome
+    varchar logradouro
+    varchar cidade
+    varchar estado
+  }
+  CATEGORIA {
+    bigserial id PK
+    varchar nome UK
+  }
+  PRODUTO {
+    bigserial id PK
+    varchar nome
+    numeric preco
+    bigint categoria_id FK
+  }
+  VENDA {
+    bigserial id PK
+    timestamp data_hora
+    bigint cliente_id FK
+    bigint loja_id FK
+    bigint funcionario_id FK
+    varchar forma_pagamento
+  }
+  ITEM_VENDA {
+    bigserial id PK
+    bigint venda_id FK
+    bigint produto_id FK
+    int quantidade
+    numeric preco_unitario
+  }
+</pre>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose',
+    classDiagram: { useMaxWidth: true }, er: { useMaxWidth: true } });
+</script>
+</body>
+</html>
