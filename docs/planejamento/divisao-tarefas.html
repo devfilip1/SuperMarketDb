@@ -58,7 +58,7 @@
   <li>Entrega parcial atrasada perde 10% do valor do item por dia (limite de 3 dias).</li>
   <li>Uso de IA deve ser declarado no relatório, indicando em que partes foi usado. A arguição verifica se a equipe entende o que entregou.</li>
   <li>Plágio zera o item. Ausência sem justificativa na apresentação dá fator de participação zero.</li>
-  <li>Cada pessoa faz commits do próprio trabalho, com mensagens claras, e abre um pull request revisado por outra pessoa da equipe.</li>
+  <li>Cada pessoa faz commits do próprio trabalho na branch <code>main</code>, com mensagens claras.</li>
 </ul>
 
 <!-- ============================================================ -->
@@ -76,7 +76,7 @@
   <ul>
     <li>Projeto Maven importável no Eclipse Neon, com <code>pom.xml</code> (Hibernate 5.2.10.Final, driver PostgreSQL) e <code>persistence.xml</code> (unidade <code>vendasPU</code>).</li>
     <li>8 ou mais entidades anotadas contendo, obrigatoriamente: <code>@OneToOne</code>; <code>@OneToMany</code>/<code>@ManyToOne</code> bidirecional; <code>@ManyToMany</code> ou associação com entidade intermediária (<code>ItemVenda</code>); herança com <code>@Inheritance</code> (Pessoa → Cliente/Funcionario); <code>@Embeddable</code> (Endereco); um atributo <code>@Enumerated</code>; datas com <code>java.time</code>; <code>cascade</code> e <code>fetch</code> justificados no relatório.</li>
-    <li>Camada DAO genérica <code>GenericDAO&lt;T, ID&gt;</code> com CRUD via <code>EntityManager</code> e controle de transação (commit/rollback).</li>
+    <li>Camada DAO genérica <code>GenericDAO&lt;T, ID&gt;</code> com CRUD via <code>EntityManager</code> e controle de transação (commit/rollback), e um DAO por entidade estendendo o genérico.</li>
   </ul>
   <p><b>Semana 3 – consultas e carga</b></p>
   <ul>
@@ -108,10 +108,10 @@
   <ul>
     <li>Área de staging (<code>stg</code>) com a extração do OLTP.</li>
     <li>Geração da dimensão Tempo cobrindo todo o período das vendas; chaves substitutas (surrogate keys) em todas as dimensões.</li>
-    <li>Tratamento de nulos (ex.: venda sem cliente identificado → membro "Não identificado"), padronização de textos (caixa, espaços, siglas de UF), cálculo de medidas derivadas (valor líquido, margem).</li>
+    <li>Tratamento de nulos (ex.: cidade ou UF ausente → "Não informado"), padronização de textos (caixa, espaços, siglas de UF), cálculo de medidas derivadas (valor total = quantidade × preço unitário).</li>
     <li>Carga incremental (só vendas novas desde a última execução, com controle por data ou ID) e <b>SCD tipo 2</b> em <code>dim_cliente</code> (mudança de cidade).</li>
     <li>Log de contagens de linhas antes e depois de cada carga e consultas de validação (total do OLTP = total do DW).</li>
-    <li>Script único que roda o ETL de novo (necessário na demo: venda inserida pela aplicação chegando ao DW).</li>
+    <li>Script único que roda o ETL de novo (necessário na demo: registro inserido pela aplicação chegando ao DW).</li>
   </ul>
   <p><b>Entregáveis</b></p>
   <ul class="check">
@@ -149,7 +149,7 @@
   <div class="meta"><span><b>Prazo:</b> contínuo · 19/11 (Entrega 3) · 21 a 27/11 (apresentação)</span><span><b>Critérios de nota ligados:</b> Relatório teórico (3,0) · Apresentação e arguição (1,0)</span></div>
   <p><b>Gestão</b></p>
   <ul>
-    <li>Cronograma e acompanhamento das datas. Repositório Git: estrutura de pastas, revisão de pull requests, conferência de que todos commitam.</li>
+    <li>Cronograma e acompanhamento das datas. Repositório Git: estrutura de pastas e conferência de que todos commitam.</li>
     <li>Integração das partes: garantir que o fluxo completo (aplicação → OLTP → ETL → DW → OLAP/mineração) roda do zero a partir do README.</li>
   </ul>
   <p><b>Relatório técnico (12 a 20 páginas, ABNT)</b></p>
@@ -161,7 +161,7 @@
   </ul>
   <p><b>Apresentação (20 min: 15 de exposição e demo + 5 de arguição)</b></p>
   <ul>
-    <li>Slides, divisão das falas (todos apresentam) e roteiro da demo: inserir uma venda pela aplicação JPA → rodar o ETL → mostrar a venda no DW e numa consulta OLAP.</li>
+    <li>Slides, divisão das falas (todos apresentam) e roteiro da demo: cadastrar um cliente ou produto pelo menu da aplicação JPA → rodar o ETL → mostrar o registro novo no DW (<code>dim_cliente</code> ou <code>dim_produto</code>).</li>
     <li>Ata de participação assinada pelos integrantes e simulado de arguição cruzada (cada um explica a parte do outro).</li>
   </ul>
   <p><b>Entregáveis</b></p>
@@ -189,7 +189,7 @@
   <li><b>P1 → P2:</b> esquema OLTP estável (tabelas <code>venda</code>, <code>item_venda</code>, <code>produto</code>, <code>categoria</code>, <code>pessoa</code>, <code>cliente</code>, <code>funcionario</code>, <code>loja</code>, <code>cartao_fidelidade</code>) e banco populado pela carga.</li>
   <li><b>P2 → P3:</b> DW carregado (estrela e floco) até 16/11. Antes disso, a P3 trabalha sobre os DDLs.</li>
   <li><b>P1, P2, P3 → P4:</b> textos de apoio de cada parte, com exemplos reais do sistema, até 18/11 para fechar o relatório em 19/11.</li>
-  <li><b>Todos → demo:</b> inserção pela aplicação JPA, por exemplo cadastro de cliente ou produto no menu (P1) + script de reexecução do ETL (P2) + consulta OLAP que mostra a venda nova (P3).</li>
+  <li><b>Todos → demo:</b> inserção pela aplicação JPA, por exemplo cadastro de cliente ou produto no menu (P1) + script de reexecução do ETL (P2) + consulta no DW que mostra o registro novo (P3).</li>
 </ul>
 
 <h3>Distribuição das questões de fixação (texto de apoio)</h3>
