@@ -82,9 +82,9 @@ Fluxo de `CALL etl.executar()`:
 
 | Execução | O que aconteceu | Fato estrela | Fato floco | OLTP | Status |
 |---|---|---|---|---|---|
-| 1 – inicial | 200 clientes, 100 produtos, 5 lojas, 1.096 dias (2024–2026) | 0 → 9.059 | 0 → 9.059 | 9.059 itens, R$ 315.104,59 | OK |
-| 2 – incremental sem mudanças | nada novo | 9.059 → 9.059 | 9.059 → 9.059 | igual | OK |
-| 3 – teste SCD2 | 1 cliente mudou de cidade, 1 cliente novo com nulos, 1 cupom com 2 itens | 9.059 → 9.061 | 9.059 → 9.061 | 9.061 itens | OK |
+| 1 – inicial | 200 clientes, 100 produtos, 5 lojas, 1.096 dias (2024–2026) | 0 → 10.007 | 0 → 10.007 | 10.007 itens, R$ 372.057,92 | OK |
+| 2 – incremental sem mudanças | nada novo | 10.007 → 10.007 | 10.007 → 10.007 | igual | OK |
+| 3 – teste SCD2 | 1 cliente mudou de cidade, 1 cliente novo com nulos, 1 cupom com 2 itens | 10.007 → 10.009 | 10.007 → 10.009 | 10.009 itens | OK |
 
 Na execução 3, o cliente que mudou de João Pessoa/PB para `'  recife '`/`'pe'` ficou assim em `dw.dim_cliente`:
 
@@ -93,7 +93,7 @@ Na execução 3, o cliente que mudou de João Pessoa/PB para `'  recife '`/`'pe'
 | 1 | Joao Pessoa | PB | 1 | 1900-01-01 | 2026-11-22 | false |
 | 201 | Recife | PE | 2 | 2026-11-22 | 9999-12-31 | true |
 
-Os 11 cupons antigos continuam ligados à versão 1 (João Pessoa) e o cupom novo foi para a versão 2 (Recife): a história não é reescrita. O cliente novo sem cidade e sem UF entrou como `Não informado` / `NI`.
+Os 31 cupons antigos continuam ligados à versão 1 (João Pessoa) e o cupom novo foi para a versão 2 (Recife): a história não é reescrita. O cliente novo sem cidade e sem UF entrou como `Não informado` / `NI`.
 
 ## Demonstração (apresentação)
 

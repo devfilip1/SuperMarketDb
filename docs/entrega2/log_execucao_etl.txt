@@ -1,4 +1,4 @@
-# 1) Carga INICIAL: psql -U bd2 -d supermercado -f sql/instalar_dw.sql
+# 1) Carga INICIAL: psql -U postgres -d supermercado -f sql/instalar_dw.sql
 >> 1/5 Modelo estrela (dw)
 >> 2/5 Modelo floco de neve (dw_floco)
 >> 3/5 Staging (stg) e controle (etl)
@@ -8,7 +8,7 @@
 --- Execucao ---
  id |  tipo   | status |       inicio        |     duracao     
 ----+---------+--------+---------------------+-----------------
-  1 | INICIAL | OK     | 2026-11-22 19:10:42 | 00:00:00.613806
+  1 | INICIAL | OK     | 2026-11-22 19:51:16 | 00:00:00.857996
 (1 linha)
 
 --- Contagens antes e depois (etl.log_carga) ---
@@ -17,17 +17,17 @@
  EXTRACAO      | stg.cliente            |     0 |    200 |       200 |             | 
  EXTRACAO      | stg.produto            |     0 |    100 |       100 |             | 
  EXTRACAO      | stg.loja               |     0 |      5 |         5 |             | 
- EXTRACAO      | stg.item_venda         |     0 |   9059 |      9059 |             | itens com id > 0 (marca d'agua)
+ EXTRACAO      | stg.item_venda         |     0 |  10007 |     10007 |             | itens com id > 0 (marca d'agua)
  TRANSFORMACAO | stg.cliente            |   200 |    200 |           |         200 | 0 com nulo tratado; nome/cidade em Initcap, UF maiuscula
  TRANSFORMACAO | stg.produto            |   100 |    100 |           |         100 | 0 com nulo tratado
  TRANSFORMACAO | stg.loja               |     5 |      5 |           |           5 | 0 com nulo tratado
- TRANSFORMACAO | stg.item_venda         |  9059 |   9059 |           |             | 0 itens descartados (quantidade/preco invalido)
+ TRANSFORMACAO | stg.item_venda         | 10007 |  10007 |           |             | 0 itens descartados (quantidade/preco invalido)
  CARGA         | dw.dim_tempo           |     1 |   1097 |      1096 |           0 | periodo 2024-01-01 a 2026-12-31
  CARGA         | dw.dim_produto         |     1 |    101 |       100 |           0 | 
  CARGA         | dw.dim_loja            |     1 |      6 |         5 |           0 | 
  CARGA         | dw.dim_pagamento       |     1 |      5 |         4 |           0 | 
  CARGA         | dw.dim_cliente         |     1 |    201 |       200 |           0 | 200 clientes novos; 0 novas versoes SCD2 (mudanca de cidade)
- CARGA         | dw.fato_venda          |     0 |   9059 |      9059 |           0 | 0 linhas apontam para membro Não informado
+ CARGA         | dw.fato_venda          |     0 |  10007 |     10007 |           0 | 0 linhas apontam para membro Não informado
  CARGA FLOCO   | dw_floco.dim_tempo     |     0 |   1097 |      1097 |           0 | 
  CARGA FLOCO   | dw_floco.dim_estado    |     0 |      4 |         4 |           0 | 
  CARGA FLOCO   | dw_floco.dim_cidade    |     0 |      5 |         5 |           0 | 
@@ -36,20 +36,20 @@
  CARGA FLOCO   | dw_floco.dim_loja      |     0 |      6 |         6 |           0 | 
  CARGA FLOCO   | dw_floco.dim_cliente   |     0 |    201 |       201 |           0 | 
  CARGA FLOCO   | dw_floco.dim_pagamento |     0 |      5 |         5 |           0 | 
- CARGA FLOCO   | dw_floco.fato_venda    |     0 |   9059 |      9059 |           0 | 
- VALIDACAO     | public.item_venda      |       |   9059 |           |             | valor total R$ 315104.59
- VALIDACAO     | dw.fato_venda          |       |   9059 |           |             | valor total R$ 315104.59
- VALIDACAO     | dw_floco.fato_venda    |       |   9059 |           |             | valor total R$ 315104.59
+ CARGA FLOCO   | dw_floco.fato_venda    |     0 |  10007 |     10007 |           0 | 
+ VALIDACAO     | public.item_venda      |       |  10007 |           |             | valor total R$ 372057.92
+ VALIDACAO     | dw.fato_venda          |       |  10007 |           |             | valor total R$ 372057.92
+ VALIDACAO     | dw_floco.fato_venda    |       |  10007 |           |             | valor total R$ 372057.92
  VALIDACAO     | resultado              |       |        |           |             | OK: OLTP, estrela e floco batem
 (27 linhas)
 
 
-# 2) Reexecucao SEM mudancas no OLTP: psql -U bd2 -d supermercado -f sql/etl/rodar_etl.sql
+# 2) Reexecucao SEM mudancas no OLTP: psql -U postgres -d supermercado -f sql/etl/rodar_etl.sql
 
 --- Execucao ---
  id |    tipo     | status |       inicio        |     duracao     
 ----+-------------+--------+---------------------+-----------------
-  2 | INCREMENTAL | OK     | 2026-11-22 19:10:42 | 00:00:00.081259
+  2 | INCREMENTAL | OK     | 2026-11-22 19:51:18 | 00:00:00.109194
 (1 linha)
 
 --- Contagens antes e depois (etl.log_carga) ---
@@ -58,7 +58,7 @@
  EXTRACAO      | stg.cliente            |     0 |    200 |       200 |             | 
  EXTRACAO      | stg.produto            |     0 |    100 |       100 |             | 
  EXTRACAO      | stg.loja               |     0 |      5 |         5 |             | 
- EXTRACAO      | stg.item_venda         |     0 |      0 |         0 |             | itens com id > 9059 (marca d'agua)
+ EXTRACAO      | stg.item_venda         |     0 |      0 |         0 |             | itens com id > 10007 (marca d'agua)
  TRANSFORMACAO | stg.cliente            |   200 |    200 |           |         200 | 0 com nulo tratado; nome/cidade em Initcap, UF maiuscula
  TRANSFORMACAO | stg.produto            |   100 |    100 |           |         100 | 0 com nulo tratado
  TRANSFORMACAO | stg.loja               |     5 |      5 |           |           5 | 0 com nulo tratado
@@ -68,7 +68,7 @@
  CARGA         | dw.dim_loja            |     6 |      6 |         0 |           0 | 
  CARGA         | dw.dim_pagamento       |     5 |      5 |         0 |           0 | 
  CARGA         | dw.dim_cliente         |   201 |    201 |         0 |           0 | 0 clientes novos; 0 novas versoes SCD2 (mudanca de cidade)
- CARGA         | dw.fato_venda          |  9059 |   9059 |         0 |           0 | 0 linhas apontam para membro Não informado
+ CARGA         | dw.fato_venda          | 10007 |  10007 |         0 |           0 | 0 linhas apontam para membro Não informado
  CARGA FLOCO   | dw_floco.dim_tempo     |  1097 |   1097 |         0 |           0 | 
  CARGA FLOCO   | dw_floco.dim_estado    |     4 |      4 |         0 |           0 | 
  CARGA FLOCO   | dw_floco.dim_cidade    |     5 |      5 |         0 |           0 | 
@@ -77,15 +77,15 @@
  CARGA FLOCO   | dw_floco.dim_loja      |     6 |      6 |         0 |           0 | 
  CARGA FLOCO   | dw_floco.dim_cliente   |   201 |    201 |         0 |           0 | 
  CARGA FLOCO   | dw_floco.dim_pagamento |     5 |      5 |         0 |           0 | 
- CARGA FLOCO   | dw_floco.fato_venda    |  9059 |   9059 |         0 |           0 | 
- VALIDACAO     | public.item_venda      |       |   9059 |           |             | valor total R$ 315104.59
- VALIDACAO     | dw.fato_venda          |       |   9059 |           |             | valor total R$ 315104.59
- VALIDACAO     | dw_floco.fato_venda    |       |   9059 |           |             | valor total R$ 315104.59
+ CARGA FLOCO   | dw_floco.fato_venda    | 10007 |  10007 |         0 |           0 | 
+ VALIDACAO     | public.item_venda      |       |  10007 |           |             | valor total R$ 372057.92
+ VALIDACAO     | dw.fato_venda          |       |  10007 |           |             | valor total R$ 372057.92
+ VALIDACAO     | dw_floco.fato_venda    |       |  10007 |           |             | valor total R$ 372057.92
  VALIDACAO     | resultado              |       |        |           |             | OK: OLTP, estrela e floco batem
 (27 linhas)
 
 
-# 3) Teste de SCD tipo 2 + carga incremental: psql -U bd2 -d supermercado -f sql/etl/03_teste_scd2_incremental.sql
+# 3) Teste de SCD tipo 2 + carga incremental: psql -U postgres -d supermercado -f sql/etl/03_teste_scd2_incremental.sql
 --- ANTES: versoes do cliente de teste em dw.dim_cliente ---
  sk_cliente | id_origem |          nome          |   cidade    | estado | versao | data_inicio |  data_fim  | atual 
 ------------+-----------+------------------------+-------------+--------+--------+-------------+------------+-------
@@ -96,13 +96,13 @@
 --- Rodando o ETL de novo (incremental) ---
      etapa     |       tabela        | antes | depois | inseridas | atualizadas |                         observacao                         
 ---------------+---------------------+-------+--------+-----------+-------------+------------------------------------------------------------
- EXTRACAO      | stg.item_venda      |     0 |      2 |         2 |             | itens com id > 9059 (marca d'agua)
+ EXTRACAO      | stg.item_venda      |     0 |      2 |         2 |             | itens com id > 10007 (marca d'agua)
  TRANSFORMACAO | stg.item_venda      |     2 |      2 |           |             | 0 itens descartados (quantidade/preco invalido)
  CARGA         | dw.dim_cliente      |   201 |    203 |         2 |           0 | 1 clientes novos; 1 novas versoes SCD2 (mudanca de cidade)
- CARGA         | dw.fato_venda       |  9059 |   9061 |         2 |           0 | 0 linhas apontam para membro Não informado
- VALIDACAO     | public.item_venda   |       |   9061 |           |             | valor total R$ 315177.37
- VALIDACAO     | dw.fato_venda       |       |   9061 |           |             | valor total R$ 315177.37
- VALIDACAO     | dw_floco.fato_venda |       |   9061 |           |             | valor total R$ 315177.37
+ CARGA         | dw.fato_venda       | 10007 |  10009 |         2 |           0 | 0 linhas apontam para membro Não informado
+ VALIDACAO     | public.item_venda   |       |  10009 |           |             | valor total R$ 372130.70
+ VALIDACAO     | dw.fato_venda       |       |  10009 |           |             | valor total R$ 372130.70
+ VALIDACAO     | dw_floco.fato_venda |       |  10009 |           |             | valor total R$ 372130.70
  VALIDACAO     | resultado           |       |        |           |             | OK: OLTP, estrela e floco batem
 (8 linhas)
 
@@ -116,13 +116,13 @@
 --- Vendas do cliente por versao (antigas na v1, a nova na v2) ---
  versao |   cidade    | cupons |  valor  
 --------+-------------+--------+---------
-      1 | Joao Pessoa |     11 | 1091.64
+      1 | Joao Pessoa |     31 | 4706.65
       2 | Recife      |      1 |   72.78
 (2 linhas)
 
 --- Cliente novo: nulos viraram Não informado / NI, nome padronizado ---
  sk_cliente |         nome         |    cidade     | estado | possui_cartao | versao 
 ------------+----------------------+---------------+--------+---------------+--------
-        202 | Joana Teste Da Silva | Não informado | NI     | f             |      1
+        202 | Joana Teste da Silva | Não informado | NI     | f             |      1
 (1 linha)
 

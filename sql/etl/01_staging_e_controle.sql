@@ -98,10 +98,16 @@ LANGUAGE sql IMMUTABLE AS $$
     SELECT COALESCE(etl.limpar(t), 'Não informado')
 $$;
 
--- Nome proprio (pessoa, cidade): primeira letra de cada palavra maiuscula
+-- Nome proprio (pessoa, cidade, categoria): primeira letra de cada palavra
+-- maiuscula, exceto preposicoes e conjuncao (de, da, do, das, dos, e)
 CREATE FUNCTION etl.nome_proprio(t TEXT) RETURNS TEXT
 LANGUAGE sql IMMUTABLE AS $$
-    SELECT COALESCE(initcap(etl.limpar(t)), 'Não informado')
+    SELECT COALESCE(
+        regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(
+            initcap(etl.limpar(t)),
+            ' De(?= )', ' de', 'g'), ' Da(?= )', ' da', 'g'), ' Do(?= )', ' do', 'g'),
+            ' Das(?= )', ' das', 'g'), ' Dos(?= )', ' dos', 'g'), ' E(?= )', ' e', 'g'),
+        'Não informado')
 $$;
 
 -- Sigla de UF: 2 letras maiusculas; qualquer outra coisa vira 'NI'
