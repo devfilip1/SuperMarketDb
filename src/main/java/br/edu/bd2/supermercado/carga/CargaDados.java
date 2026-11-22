@@ -1,13 +1,18 @@
 package br.edu.bd2.supermercado.carga;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -68,6 +73,22 @@ public class CargaDados {
           "Vela Pack 8;7.99", "Lampada LED 9W;12.90", "Papel Aluminio 30cm;8.99", "Filme PVC 28cm;7.49",
           "Guardanapo 50un;3.99", "Prato Descartavel 10un;5.49" },
     };
+
+    // Cestas tipicas: produtos que costumam sair juntos no mesmo cupom.
+    // Dao padroes reais para a mineracao de regras de associacao (Apriori).
+    private static final String[][] CESTAS = {
+        { "Picanha kg", "Carvao 3kg", "Cerveja Lata 350ml", "Linguica Toscana kg", "Farinha de Mandioca 1kg",
+          "Refrigerante Cola 2L" },                                                          // churrasco
+        { "Pao Frances kg", "Manteiga 200g", "Cafe Torrado 250g", "Leite Integral 1L" },     // cafe da manha
+        { "Flocao de Milho 500g", "Queijo Coalho kg", "Manteiga 200g", "Carne de Sol kg" }, // cuscuz nordestino
+        { "Sabao em Po 1,6kg", "Amaciante 2L", "Agua Sanitaria 2L", "Detergente 500ml", "Esponja Pack 3" }, // limpeza
+        { "Creme Dental 90g", "Escova Dental", "Sabonete 85g", "Papel Higienico 12 rolos", "Shampoo 350ml",
+          "Condicionador 350ml" },                                                           // higiene
+        { "Arroz Tipo 1 5kg", "Feijao Carioca 1kg", "Oleo de Soja 900ml", "Acucar Cristal 1kg",
+          "Macarrao Espaguete 500g", "Molho de Tomate 340g" },                               // feira do mes
+    };
+    private static final double CHANCE_CESTA = 0.40;
+    private static final double CHANCE_ITEM_DA_CESTA = 0.80;
 
     private static final String[] NOMES = { "Maria", "Ana", "Francisca", "Antonia", "Juliana", "Fernanda", "Patricia",
             "Camila", "Beatriz", "Larissa", "Jose", "Joao", "Antonio", "Francisco", "Carlos", "Paulo", "Pedro", "Lucas",
@@ -141,16 +162,33 @@ public class CargaDados {
                 clientes.add(c);
             }
 
+            Map<String, Produto> porNome = new HashMap<>();
+            for (Produto p : produtos) {
+                porNome.put(p.getNome(), p);
+            }
+
             FormaPagamento[] formas = FormaPagamento.values();
             for (int i = 0; i < VENDAS; i++) {
                 int l = rnd.nextInt(lojas.size());
-                LocalDateTime dataHora = dataAleatoria().atTime(8 + rnd.nextInt(14), rnd.nextInt(60));
-                Venda v = new Venda(dataHora, clientes.get(rnd.nextInt(clientes.size())), lojas.get(l),
+                LocalDate dia = dataAleatoria();
+                LocalDateTime dataHora = dia.atTime(8 + rnd.nextInt(14), rnd.nextInt(60));
+                Venda v = new Venda(dataHora, clientes.get(clienteFrequente(clientes.size())), lojas.get(l),
                         operadores.get(l).get(rnd.nextInt(2)), formas[rnd.nextInt(formas.length)]);
+                Set<Produto> carrinho = new LinkedHashSet<>();
+                if (rnd.nextDouble() < CHANCE_CESTA) {
+                    for (String nome : CESTAS[escolherCesta(dia)]) {
+                        if (rnd.nextDouble() < CHANCE_ITEM_DA_CESTA) {
+                            carrinho.add(porNome.get(nome));
+                        }
+                    }
+                }
                 Collections.shuffle(produtos, rnd);
-                int itens = 1 + rnd.nextInt(8);
-                for (int j = 0; j < itens; j++) {
-                    v.adicionarItem(produtos.get(j), 1 + rnd.nextInt(4));
+                int avulsos = carrinho.isEmpty() ? 1 + rnd.nextInt(8) : rnd.nextInt(4);
+                for (int j = 0; carrinho.size() < 12 && avulsos > 0; j++, avulsos--) {
+                    carrinho.add(produtos.get(j));
+                }
+                for (Produto p : carrinho) {
+                    v.adicionarItem(p, 1 + rnd.nextInt(4));
                 }
                 em.persist(v);
             }
@@ -175,6 +213,23 @@ public class CargaDados {
 
     private Endereco endereco(String cidade, String estado) {
         return new Endereco(RUAS[rnd.nextInt(RUAS.length)] + ", " + (1 + rnd.nextInt(2000)), cidade, estado);
+    }
+
+    // 30 clientes fieis fazem cerca de 25% das compras; os demais compram com menos frequencia
+    private static final int CLIENTES_FIEIS = 30;
+    private static final double CHANCE_CLIENTE_FIEL = 0.25;
+
+    private int clienteFrequente(int total) {
+        return rnd.nextDouble() < CHANCE_CLIENTE_FIEL ? rnd.nextInt(CLIENTES_FIEIS) : rnd.nextInt(total);
+    }
+
+    // Churrasco e mais comum no fim de semana
+    private int escolherCesta(LocalDate dia) {
+        boolean fimDeSemana = dia.getDayOfWeek() == DayOfWeek.SATURDAY || dia.getDayOfWeek() == DayOfWeek.SUNDAY;
+        if (fimDeSemana && rnd.nextDouble() < 0.5) {
+            return 0;
+        }
+        return rnd.nextInt(CESTAS.length);
     }
 
     private LocalDate dataAleatoria() {
