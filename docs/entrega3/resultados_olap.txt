@@ -1,0 +1,232 @@
+=== R1 (roll-up no Tempo) Como o faturamento evolui por ano, trimestre e mes, com subtotais? ===
+     ano     | trimestre |    mes    | cupons | faturamento 
+-------------+-----------+-----------+--------+-------------
+ 2024        | 4º tri    | Novembro  |     73 |    12009.73
+ 2024        | 4º tri    | Dezembro  |     95 |    18257.34
+ 2024        | 4º tri    | TOTAL     |    168 |    30267.07
+ 2024        | TOTAL     | TOTAL     |    168 |    30267.07
+ 2025        | 1º tri    | Janeiro   |     77 |    14989.72
+ 2025        | 1º tri    | Fevereiro |     70 |    13536.29
+ 2025        | 1º tri    | Março     |     88 |    14833.15
+ 2025        | 1º tri    | TOTAL     |    235 |    43359.16
+ 2025        | 2º tri    | Abril     |     83 |    16977.55
+ 2025        | 2º tri    | Maio      |     77 |    14956.43
+ 2025        | 2º tri    | Junho     |     97 |    19525.92
+ 2025        | 2º tri    | TOTAL     |    257 |    51459.90
+ 2025        | 3º tri    | Julho     |     76 |    14438.97
+ 2025        | 3º tri    | Agosto    |     71 |    12722.65
+ 2025        | 3º tri    | Setembro  |     71 |    13152.71
+ 2025        | 3º tri    | TOTAL     |    218 |    40314.33
+ 2025        | 4º tri    | Outubro   |    104 |    19741.25
+ 2025        | 4º tri    | Novembro  |     88 |    15452.03
+ 2025        | 4º tri    | Dezembro  |     77 |    13355.62
+ 2025        | 4º tri    | TOTAL     |    269 |    48548.90
+ 2025        | TOTAL     | TOTAL     |    979 |   183682.29
+ 2026        | 1º tri    | Janeiro   |     98 |    16272.51
+ 2026        | 1º tri    | Fevereiro |     76 |    15262.59
+ 2026        | 1º tri    | Março     |     74 |    13976.56
+ 2026        | 1º tri    | TOTAL     |    248 |    45511.66
+ 2026        | 2º tri    | Abril     |     81 |    15763.72
+ 2026        | 2º tri    | Maio      |    103 |    19843.10
+ 2026        | 2º tri    | Junho     |     86 |    15160.46
+ 2026        | 2º tri    | TOTAL     |    270 |    50767.28
+ 2026        | 3º tri    | Julho     |     77 |    15059.29
+ 2026        | 3º tri    | Agosto    |     77 |    13299.96
+ 2026        | 3º tri    | Setembro  |     78 |    13939.14
+ 2026        | 3º tri    | TOTAL     |    232 |    42298.39
+ 2026        | 4º tri    | Outubro   |    103 |    19531.23
+ 2026        | 4º tri    | Novembro  |      1 |       72.78
+ 2026        | 4º tri    | TOTAL     |    104 |    19604.01
+ 2026        | TOTAL     | TOTAL     |    854 |   158181.34
+ TOTAL GERAL | TOTAL     | TOTAL     |   2001 |   372130.70
+(38 linhas)
+
+=== R2 (roll-up na Geografia) Quanto cada loja fatura, somando por cidade, por estado e no total? ===
+     uf      |   cidade    |        loja         | itens | faturamento 
+-------------+-------------+---------------------+-------+-------------
+ PB          | Joao Pessoa | Bom Lar Manaira     |  4922 |    75599.91
+ PB          | Joao Pessoa | TOTAL               |  4922 |    75599.91
+ PB          | TOTAL       | TOTAL               |  4922 |    75599.91
+ PE          | Recife      | Bom Lar Boa Viagem  |  4779 |    70417.16
+ PE          | Recife      | TOTAL               |  4779 |    70417.16
+ PE          | TOTAL       | TOTAL               |  4779 |    70417.16
+ RN          | Natal       | Bom Lar Centro      |  5113 |    77478.93
+ RN          | Natal       | Bom Lar Ponta Negra |  4943 |    72100.49
+ RN          | Natal       | TOTAL               | 10056 |   149579.42
+ RN          | Parnamirim  | Bom Lar Parnamirim  |  5183 |    76534.21
+ RN          | Parnamirim  | TOTAL               |  5183 |    76534.21
+ RN          | TOTAL       | TOTAL               | 15239 |   226113.63
+ TOTAL GERAL | TOTAL       | TOTAL               | 24940 |   372130.70
+(13 linhas)
+
+=== D1 (drill-down no Tempo) Em 2025: total do ano -> semestre -> mes (GROUPING SETS) ===
+ nivel_semestre |    mes    | cupons | faturamento | ticket_medio 
+----------------+-----------+--------+-------------+--------------
+ ANO 2025       | -         |    979 |   183682.29 |       187.62
+ 1º semestre    | -         |    492 |    94819.06 |       192.72
+ 1º semestre    | Janeiro   |     77 |    14989.72 |       194.67
+ 1º semestre    | Fevereiro |     70 |    13536.29 |       193.38
+ 1º semestre    | Março     |     88 |    14833.15 |       168.56
+ 1º semestre    | Abril     |     83 |    16977.55 |       204.55
+ 1º semestre    | Maio      |     77 |    14956.43 |       194.24
+ 1º semestre    | Junho     |     97 |    19525.92 |       201.30
+ 2º semestre    | -         |    487 |    88863.23 |       182.47
+ 2º semestre    | Julho     |     76 |    14438.97 |       189.99
+ 2º semestre    | Agosto    |     71 |    12722.65 |       179.19
+ 2º semestre    | Setembro  |     71 |    13152.71 |       185.25
+ 2º semestre    | Outubro   |    104 |    19741.25 |       189.82
+ 2º semestre    | Novembro  |     88 |    15452.03 |       175.59
+ 2º semestre    | Dezembro  |     77 |    13355.62 |       173.45
+(15 linhas)
+
+=== D2 (drill-down no Produto) Quanto fatura cada categoria? Descendo de Bebidas ate o produto ===
+     categoria      |         produto         | unidades | faturamento 
+--------------------+-------------------------+----------+-------------
+ TOTAL GERAL        | TOTAL DA CATEGORIA      |    24940 |   372130.70
+ Acougue            | TOTAL DA CATEGORIA      |     2854 |   123499.82
+ Frios e Laticinios | TOTAL DA CATEGORIA      |     2670 |    49174.19
+ Higiene            | TOTAL DA CATEGORIA      |     2889 |    39792.37
+ Mercearia          | TOTAL DA CATEGORIA      |     3993 |    33306.49
+ Limpeza            | TOTAL DA CATEGORIA      |     2842 |    29214.08
+ Padaria            | TOTAL DA CATEGORIA      |     1894 |    22689.15
+ Bazar              | TOTAL DA CATEGORIA      |     2092 |    22600.76
+ Bebidas            | TOTAL DA CATEGORIA      |     2479 |    22238.45
+ Matinais           | TOTAL DA CATEGORIA      |     1688 |    20726.58
+ Hortifruti         | TOTAL DA CATEGORIA      |     1539 |     8888.81
+ Bebidas            | Refrigerante Cola 2L    |      601 |     6604.99
+ Bebidas            | Vinho Tinto 750ml       |      174 |     4332.60
+ Bebidas            | Suco de Uva 1L          |      171 |     2547.90
+ Bebidas            | Cerveja Lata 350ml      |      567 |     2262.33
+ Bebidas            | Cachaca 965ml           |      119 |     1892.10
+ Bebidas            | Refrigerante Guarana 2L |      187 |     1587.63
+ Bebidas            | Cerveja Long Neck 330ml |      156 |     1012.44
+ Bebidas            | Suco de Caju 500ml      |      140 |      978.60
+ Bebidas            | Agua Mineral 1,5L       |      197 |      687.53
+ Bebidas            | Agua Mineral 500ml      |      167 |      332.33
+(21 linhas)
+
+=== S1 (slice Tempo: ano = 2025) Em 2025, quanto cada loja vendeu de cada categoria? ===
+        loja         |     categoria      | faturamento 
+---------------------+--------------------+-------------
+ Bom Lar Boa Viagem  | Acougue            |    10202.32
+ Bom Lar Boa Viagem  | Limpeza            |     4314.01
+ Bom Lar Boa Viagem  | Higiene            |     4278.94
+ Bom Lar Boa Viagem  | Frios e Laticinios |     3906.70
+ Bom Lar Boa Viagem  | Mercearia          |     3406.30
+ Bom Lar Boa Viagem  | Bebidas            |     2416.58
+ Bom Lar Boa Viagem  | Padaria            |     2403.15
+ Bom Lar Boa Viagem  | Matinais           |     2067.60
+ Bom Lar Boa Viagem  | Bazar              |     2046.86
+ Bom Lar Boa Viagem  | Hortifruti         |      982.23
+ Bom Lar Centro      | Acougue            |    12972.10
+ Bom Lar Centro      | Frios e Laticinios |     4746.15
+ Bom Lar Centro      | Higiene            |     2979.99
+ Bom Lar Centro      | Limpeza            |     2629.03
+ Bom Lar Centro      | Mercearia          |     2371.60
+ Bom Lar Centro      | Matinais           |     2334.89
+ Bom Lar Centro      | Bazar              |     2179.68
+ Bom Lar Centro      | Bebidas            |     2031.80
+ Bom Lar Centro      | Padaria            |     1910.81
+ Bom Lar Centro      | Hortifruti         |      767.32
+ Bom Lar Manaira     | Acougue            |    12619.21
+ Bom Lar Manaira     | Frios e Laticinios |     4489.42
+ Bom Lar Manaira     | Higiene            |     4472.81
+ Bom Lar Manaira     | Limpeza            |     2978.90
+ Bom Lar Manaira     | Bazar              |     2756.76
+ Bom Lar Manaira     | Bebidas            |     2580.01
+ Bom Lar Manaira     | Mercearia          |     2529.80
+ Bom Lar Manaira     | Matinais           |     2180.71
+ Bom Lar Manaira     | Padaria            |     1735.22
+ Bom Lar Manaira     | Hortifruti         |      777.94
+ Bom Lar Parnamirim  | Acougue            |    13264.39
+ Bom Lar Parnamirim  | Frios e Laticinios |     5850.43
+ Bom Lar Parnamirim  | Higiene            |     5036.35
+ Bom Lar Parnamirim  | Mercearia          |     4223.12
+ Bom Lar Parnamirim  | Padaria            |     2909.52
+ Bom Lar Parnamirim  | Bazar              |     2683.38
+ Bom Lar Parnamirim  | Limpeza            |     2657.40
+ Bom Lar Parnamirim  | Bebidas            |     2100.59
+ Bom Lar Parnamirim  | Matinais           |     1912.44
+ Bom Lar Parnamirim  | Hortifruti         |      906.70
+ Bom Lar Ponta Negra | Acougue            |    10881.44
+ Bom Lar Ponta Negra | Frios e Laticinios |     4983.70
+ Bom Lar Ponta Negra | Mercearia          |     4072.77
+ Bom Lar Ponta Negra | Higiene            |     3518.69
+ Bom Lar Ponta Negra | Padaria            |     2193.18
+ Bom Lar Ponta Negra | Limpeza            |     2107.01
+ Bom Lar Ponta Negra | Bazar              |     1850.24
+ Bom Lar Ponta Negra | Bebidas            |     1811.51
+ Bom Lar Ponta Negra | Matinais           |     1724.76
+ Bom Lar Ponta Negra | Hortifruti         |      925.83
+(50 linhas)
+
+=== S2 (slice Pagamento: Pix) Como o uso do Pix evoluiu por trimestre? ===
+ ano  | trimestre | cupons_pix | faturamento_pix 
+------+-----------+------------+-----------------
+ 2024 |         4 |         41 |         7538.44
+ 2025 |         1 |         67 |        11654.20
+ 2025 |         2 |         63 |        12550.99
+ 2025 |         3 |         59 |        10812.29
+ 2025 |         4 |         61 |        12648.74
+ 2026 |         1 |         58 |         9508.73
+ 2026 |         2 |         62 |        10726.42
+ 2026 |         3 |         53 |        10094.81
+ 2026 |         4 |         28 |         5846.62
+(9 linhas)
+
+=== Di1 (dice) Lojas do RN x categorias Acougue e Bebidas x 2º semestre de 2025: quem vende mais? ===
+        loja         | categoria | unidades | faturamento 
+---------------------+-----------+----------+-------------
+ Bom Lar Parnamirim  | Acougue   |      130 |     5782.49
+ Bom Lar Centro      | Acougue   |      127 |     5757.25
+ Bom Lar Ponta Negra | Acougue   |      138 |     5040.64
+ Bom Lar Centro      | Bebidas   |      111 |     1078.65
+ Bom Lar Ponta Negra | Bebidas   |      108 |     1011.76
+ Bom Lar Parnamirim  | Bebidas   |      100 |      948.11
+(6 linhas)
+
+=== Di2 (dice) Clientes COM cartao fidelidade, no fim de semana, em 2026: como pagam? (CUBE) ===
+  forma_pagamento  |   dia   | cupons | faturamento 
+-------------------+---------+--------+-------------
+ Cartão de crédito | Domingo |     13 |     2527.13
+ Cartão de crédito | Sábado  |     14 |     1927.01
+ Cartão de crédito | TOTAL   |     27 |     4454.14
+ Cartão de débito  | Domingo |     23 |     5112.21
+ Cartão de débito  | Sábado  |     13 |     1993.76
+ Cartão de débito  | TOTAL   |     36 |     7105.97
+ Dinheiro          | Domingo |     17 |     2792.40
+ Dinheiro          | Sábado  |     18 |     4335.87
+ Dinheiro          | TOTAL   |     35 |     7128.27
+ Pix               | Domingo |     15 |     3006.44
+ Pix               | Sábado  |     12 |     2098.12
+ Pix               | TOTAL   |     27 |     5104.56
+ TOTAL             | Domingo |     68 |    13438.18
+ TOTAL             | Sábado  |     57 |    10354.76
+ TOTAL             | TOTAL   |    125 |    23792.94
+(15 linhas)
+
+=== P1 (pivot) Faturamento de cada categoria (linhas) por ano (colunas). Obs.: 2024 = nov-dez; 2026 = jan-nov ===
+     categoria      |  2024   |   2025   |   2026   |   total   
+--------------------+---------+----------+----------+-----------
+ Acougue            | 9695.15 | 59939.46 | 53865.21 | 123499.82
+ Frios e Laticinios | 4235.72 | 23976.40 | 20962.07 |  49174.19
+ Higiene            | 3436.81 | 20286.78 | 16068.78 |  39792.37
+ Mercearia          | 3154.37 | 16603.59 | 13548.53 |  33306.49
+ Limpeza            | 2143.75 | 14686.35 | 12383.98 |  29214.08
+ Padaria            | 1887.50 | 11151.88 |  9649.77 |  22689.15
+ Bazar              | 1662.81 | 11516.92 |  9421.03 |  22600.76
+ Bebidas            | 1814.25 | 10940.49 |  9483.71 |  22238.45
+ Matinais           | 1457.14 | 10220.40 |  9049.04 |  20726.58
+ Hortifruti         |  779.57 |  4360.02 |  3749.22 |   8888.81
+(10 linhas)
+
+=== P2 (pivot) Participacao (%) de cada forma de pagamento (colunas) em cada loja (linhas) ===
+        loja         | Dinheiro % | Debito % | Credito % | Pix % | faturamento 
+---------------------+------------+----------+-----------+-------+-------------
+ Bom Lar Centro      |       25.9 |     24.4 |      26.6 |  23.2 |    77478.93
+ Bom Lar Parnamirim  |       25.9 |     26.8 |      21.4 |  26.0 |    76534.21
+ Bom Lar Manaira     |       25.3 |     29.9 |      20.4 |  24.5 |    75599.91
+ Bom Lar Ponta Negra |       24.2 |     27.7 |      24.0 |  24.1 |    72100.49
+ Bom Lar Boa Viagem  |       26.3 |     19.8 |      28.8 |  25.1 |    70417.16
+(5 linhas)
+

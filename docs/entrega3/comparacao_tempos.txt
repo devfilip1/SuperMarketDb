@@ -1,0 +1,6 @@
+Modelo                             junções  mediana (ms)  mín (ms)  máx (ms) planej. (ms)
+OLTP (public): 4 junções                 4         4.057     3.833     4.831        0.209
+ESTRELA (dw): 3 junções                  3         3.128     2.893     3.617        0.201
+FLOCO DE NEVE (dw_floco): 6 junções       6         4.468     4.286     5.377        0.451
+
+As 3 versões devolvem o mesmo resultado: SIM (30 linhas cada)
