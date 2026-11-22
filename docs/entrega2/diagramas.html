@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Diagramas DW – Supermercado</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1d2330; margin: 0; background: #fff; }
+  h1 { font-size: 16pt; margin: 0 0 4px; }
+  p { margin: 2px 0 8px; font-size: 9.5pt; color: #5b6475; }
+  .pagina + .pagina { page-break-before: always; }
+  .mermaid { display: flex; justify-content: center; margin: 0; }
+  .mermaid svg { max-width: 100%; max-height: 155mm; width: auto; height: auto; }
+</style>
+</head>
+<body>
+
+<div class="pagina">
+<h1>Modelo estrela – esquema dw</h1>
+<p>Granularidade: um item vendido em um cupom fiscal (1 linha de fato_venda = 1 linha de item_venda). 5 dimensões ligadas direto à fato. Medidas: quantidade, preco_unitario e valor_total (derivada = quantidade × preço). numero_cupom é dimensão degenerada. dim_cliente é SCD tipo 2 (cidade/estado). Script: sql/dw/01_ddl_estrela.sql.</p>
+<pre class="mermaid">
+erDiagram
+  DIM_TEMPO ||--o{ FATO_VENDA : "sk_tempo"
+  DIM_PRODUTO ||--o{ FATO_VENDA : "sk_produto"
+  DIM_CLIENTE ||--o{ FATO_VENDA : "sk_cliente"
+  DIM_LOJA ||--o{ FATO_VENDA : "sk_loja"
+  DIM_PAGAMENTO ||--o{ FATO_VENDA : "sk_pagamento"
+
+  FATO_VENDA {
+    int sk_tempo FK
+    int sk_produto FK
+    int sk_cliente FK
+    int sk_loja FK
+    int sk_pagamento FK
+    bigint numero_cupom "dimensao degenerada"
+    bigint id_item_origem UK "controle incremental"
+    smallint hora
+    int quantidade "medida"
+    numeric preco_unitario "medida"
+    numeric valor_total "medida derivada"
+  }
+  DIM_TEMPO {
+    int sk_tempo PK "AAAAMMDD"
+    date data UK
+    smallint dia
+    smallint mes
+    varchar nome_mes
+    smallint trimestre
+    smallint semestre
+    smallint ano
+    varchar dia_semana
+    boolean fim_de_semana
+  }
+  DIM_PRODUTO {
+    serial sk_produto PK
+    bigint id_origem UK
+    varchar nome
+    varchar categoria "desnormalizada"
+    numeric preco_atual
+  }
+  DIM_CLIENTE {
+    serial sk_cliente PK
+    bigint id_origem
+    varchar nome
+    varchar cpf
+    varchar cidade "SCD2"
+    char estado "SCD2"
+    boolean possui_cartao
+    date data_inicio
+    date data_fim
+    boolean atual
+    smallint versao
+  }
+  DIM_LOJA {
+    serial sk_loja PK
+    bigint id_origem UK
+    varchar nome
+    varchar cidade
+    char estado
+  }
+  DIM_PAGAMENTO {
+    serial sk_pagamento PK
+    varchar codigo UK
+    varchar descricao
+    boolean eletronico
+  }
+</pre>
+</div>
+
+<div class="pagina">
+<h1>Modelo floco de neve – esquema dw_floco</h1>
+<p>Mesmo assunto e mesma granularidade. Normalizadas: Produto → Categoria e Loja/Cliente → Cidade → Estado (3 dimensões novas). As chaves substitutas de produto, cliente, loja e pagamento são as mesmas do estrela. Scripts: sql/dw/02_ddl_floco.sql e sql/dw/03_carga_floco.sql.</p>
+<pre class="mermaid">
+erDiagram
+  DIM_TEMPO ||--o{ FATO_VENDA : "sk_tempo"
+  DIM_PRODUTO ||--o{ FATO_VENDA : "sk_produto"
+  DIM_CLIENTE ||--o{ FATO_VENDA : "sk_cliente"
+  DIM_LOJA ||--o{ FATO_VENDA : "sk_loja"
+  DIM_PAGAMENTO ||--o{ FATO_VENDA : "sk_pagamento"
+  DIM_CATEGORIA ||--o{ DIM_PRODUTO : "sk_categoria"
+  DIM_CIDADE ||--o{ DIM_LOJA : "sk_cidade"
+  DIM_CIDADE ||--o{ DIM_CLIENTE : "sk_cidade"
+  DIM_ESTADO ||--o{ DIM_CIDADE : "sk_estado"
+
+  FATO_VENDA {
+    int sk_tempo FK
+    int sk_produto FK
+    int sk_cliente FK
+    int sk_loja FK
+    int sk_pagamento FK
+    bigint numero_cupom
+    bigint id_item_origem UK
+    int quantidade
+    numeric preco_unitario
+    numeric valor_total
+  }
+  DIM_TEMPO {
+    int sk_tempo PK
+    date data
+    smallint mes
+    smallint trimestre
+    smallint ano
+    varchar dia_semana
+  }
+  DIM_PRODUTO {
+    int sk_produto PK
+    bigint id_origem UK
+    varchar nome
+    numeric preco_atual
+    int sk_categoria FK
+  }
+  DIM_CATEGORIA {
+    serial sk_categoria PK
+    varchar nome UK
+  }
+  DIM_CLIENTE {
+    int sk_cliente PK
+    bigint id_origem
+    varchar nome
+    boolean possui_cartao
+    int sk_cidade FK
+    date data_inicio
+    date data_fim
+    boolean atual
+  }
+  DIM_LOJA {
+    int sk_loja PK
+    bigint id_origem UK
+    varchar nome
+    int sk_cidade FK
+  }
+  DIM_CIDADE {
+    serial sk_cidade PK
+    varchar nome
+    int sk_estado FK
+  }
+  DIM_ESTADO {
+    serial sk_estado PK
+    char sigla UK
+    varchar nome
+    varchar regiao
+  }
+  DIM_PAGAMENTO {
+    int sk_pagamento PK
+    varchar codigo UK
+    varchar descricao
+  }
+</pre>
+</div>
+
+<div class="pagina">
+<h1>Fluxo do ETL – CALL etl.executar()</h1>
+<p>Procedures em PL/pgSQL no mesmo banco PostgreSQL. O OLTP nunca é alterado; toda limpeza acontece na staging. Cada etapa grava contagens de antes e depois em etl.log_carga. Scripts: sql/etl/.</p>
+<pre class="mermaid">
+flowchart LR
+  OLTP[("OLTP<br/>public.*")] -->|"1. extrair<br/>cadastros inteiros +<br/>itens com id &gt; marca d'água"| STG[("Staging<br/>stg.*")]
+  STG -->|"2. transformar<br/>nulos → Não informado / NI<br/>espaços, Initcap, UF maiúscula<br/>descarta itens inválidos"| STG
+  STG -->|"3. carregar<br/>dim_tempo gerada<br/>produto/loja/pagamento SCD1<br/>cliente SCD2<br/>fato com chaves substitutas<br/>valor_total = qtd × preço"| DW[("Estrela<br/>dw.*")]
+  DW -->|"4. carregar_floco<br/>normaliza categoria,<br/>cidade e estado"| FLOCO[("Floco de neve<br/>dw_floco.*")]
+  DW --> VAL{{"5. validar<br/>linhas e R$ do OLTP =<br/>estrela = floco"}}
+  FLOCO --> VAL
+  VAL --> LOG[("etl.execucao<br/>etl.log_carga<br/>etl.controle")]
+</pre>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose',
+    er: { useMaxWidth: true }, flowchart: { useMaxWidth: true } });
+</script>
+</body>
+</html>
